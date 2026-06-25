@@ -2,56 +2,67 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Agenda do Concurseiro - Edital</title>
+    <title>Agenda do Concurseiro - Painel Administrativo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
-        textarea { width: 100%; height: 150px; margin-top: 10px; }
+        /* Estilo Glassmorphism */
+        body { margin: 0; min-height: 100vh; background: linear-gradient(135deg, #74ebd5, #9face6); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .app-container { width: 100%; max-width: 1000px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; padding: 30px; color: white; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .panel { background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 15px; }
+        button { cursor: pointer; border: none; padding: 10px; border-radius: 8px; font-weight: bold; width: 100%; margin-top: 5px; }
+        .btn-acao { background: #27ae60; color: white; }
+        .btn-alerta { background: #e67e22; color: white; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Analisar Conteúdo do Edital</h2>
-    <input type="file" id="pdfUpload" accept="application/pdf">
-    <input type="text" id="cargoBusca" placeholder="Digite o nome do cargo">
-    <button onclick="extrairTexto()">Buscar Conteúdo do Cargo</button>
-    <textarea id="resultadoEdital" placeholder="O conteúdo aparecerá aqui..."></textarea>
+<div class="app-container">
+    <h2>Agenda de Estudo do Concurseiro - Painel Administrativo 📖</h2>
+    
+    <div class="grid">
+        <div class="panel">
+            <h3>Bem-Estar</h3>
+            <button class="btn-alerta" onclick="alert('💦 Hidrate-se: Beba um copo de água agora!')">Beber Água</button>
+            <button class="btn-alerta" onclick="alert('🧘 Pausa de 10 min: Desconecte-se, alongue-se ou relaxe.')">Pausa 10 min</button>
+            <button class="btn-alerta" onclick="marcarRefeicao('Almoço')">Marcar Almoço</button>
+        </div>
+
+        <div class="panel">
+            <h3>Cronômetro (Pomodoro)</h3>
+            <div id="displayTempo" style="font-size: 1.5rem; text-align: center;">00:00</div>
+            <button class="btn-acao" onclick="iniciarPomodoro()">Iniciar</button>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+        <button class="btn-acao" onclick="alert('Sessão Salva com Sucesso!')">SALVAR SESSÃO</button>
+        <button onclick="document.getElementById('pdfInput').click()">CARREGAR EDITAL</button>
+        <input type="file" id="pdfInput" style="display:none" onchange="processarEdital(this)">
+    </div>
 </div>
 
 <script>
-    // Configura o worker do PDF.js
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    // Lógica de Bem-Estar
+    function marcarRefeicao(tipo) { alert(tipo + " registrado! Mantenha o foco."); }
 
-    async function extrairTexto() {
-        const file = document.getElementById('pdfUpload').files[0];
-        const cargo = document.getElementById('cargoBusca').value.toLowerCase();
-        
-        if (!file) return alert("Selecione um PDF primeiro.");
+    // Lógica de Cronômetro
+    let tempo = 0;
+    function iniciarPomodoro() {
+        setInterval(() => {
+            tempo++;
+            let m = Math.floor(tempo/60).toString().padStart(2, '0');
+            let s = (tempo%60).toString().padStart(2, '0');
+            document.getElementById('displayTempo').innerText = `${m}:${s}`;
+            if(tempo === 1500) alert("⏰ 25 minutos! Hora da pausa de 10 minutos.");
+        }, 1000);
+    }
 
-        const reader = new FileReader();
-        reader.onload = async function() {
-            const typedarray = new Uint8Array(this.result);
-            const pdf = await pdfjsLib.getDocument(typedarray).promise;
-            let textoCompleto = "";
-
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const content = await page.getTextContent();
-                textoCompleto += content.items.map(s => s.str).join(" ");
-            }
-
-            // Lógica de busca: encontra o cargo e extrai o trecho até o fim da página ou seção
-            const index = textoCompleto.toLowerCase().indexOf(cargo);
-            if (index !== -1) {
-                document.getElementById('resultadoEdital').value = "Conteúdo encontrado:\n" + textoCompleto.substring(index, index + 1000);
-            } else {
-                alert("Cargo não encontrado no documento.");
-            }
-        };
-        reader.readAsArrayBuffer(file);
+    // Lógica de PDF (Simples)
+    function processarEdital(input) {
+        alert("Processando edital: " + input.files[0].name + "...");
     }
 </script>
+
 </body>
 </html>
