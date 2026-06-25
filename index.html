@@ -2,67 +2,64 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Agenda do Concurseiro - Painel Administrativo</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <title>Painel Administrativo Concurseiro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Estilo Glassmorphism */
-        body { margin: 0; min-height: 100vh; background: linear-gradient(135deg, #74ebd5, #9face6); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .app-container { width: 100%; max-width: 1000px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; padding: 30px; color: white; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .panel { background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 15px; }
-        button { cursor: pointer; border: none; padding: 10px; border-radius: 8px; font-weight: bold; width: 100%; margin-top: 5px; }
-        .btn-acao { background: #27ae60; color: white; }
-        .btn-alerta { background: #e67e22; color: white; }
+        body { margin: 0; min-height: 100vh; background: linear-gradient(135deg, #0f2027, #2c5364); font-family: 'Segoe UI', sans-serif; color: white; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .app-container { width: 100%; max-width: 1100px; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border-radius: 20px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .grid-topo { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
+        .panel { background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 15px; }
+        .btn-salvar { background: #27ae60; padding: 12px; width: 100%; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .dashboard-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; }
+        .card-registro { background: rgba(255, 255, 255, 0.08); padding: 15px; border-radius: 15px; position: relative; }
+        .chart-container { height: 40px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <h2>Agenda de Estudo do Concurseiro - Painel Administrativo 📖</h2>
-    
-    <div class="grid">
-        <div class="panel">
-            <h3>Bem-Estar</h3>
-            <button class="btn-alerta" onclick="alert('💦 Hidrate-se: Beba um copo de água agora!')">Beber Água</button>
-            <button class="btn-alerta" onclick="alert('🧘 Pausa de 10 min: Desconecte-se, alongue-se ou relaxe.')">Pausa 10 min</button>
-            <button class="btn-alerta" onclick="marcarRefeicao('Almoço')">Marcar Almoço</button>
-        </div>
 
-        <div class="panel">
-            <h3>Cronômetro (Pomodoro)</h3>
-            <div id="displayTempo" style="font-size: 1.5rem; text-align: center;">00:00</div>
-            <button class="btn-acao" onclick="iniciarPomodoro()">Iniciar</button>
-        </div>
+    <div class="grid-topo">
+        <div class="panel">Sessão<br><select><option>Estudo</option><option>Revisão</option></select></div>
+        <div class="panel">Disciplina<br><select><option>D. Constitucional</option></select></div>
+        <div class="panel">Revisão<br><select><option>2 Dias</option><option>1 Semana</option></select></div>
+        <div class="panel">Extra<br><input type="text" placeholder="Resumo/Questões"></div>
+        <div class="panel">Data<br><input type="date"></div>
     </div>
 
-    <div style="display: flex; gap: 10px;">
-        <button class="btn-acao" onclick="alert('Sessão Salva com Sucesso!')">SALVAR SESSÃO</button>
-        <button onclick="document.getElementById('pdfInput').click()">CARREGAR EDITAL</button>
-        <input type="file" id="pdfInput" style="display:none" onchange="processarEdital(this)">
+    <button class="btn-salvar" onclick="alert('Salvo no seu painel!')">SALVAR SESSÃO</button>
+
+    <div class="dashboard-list">
+        <div class="card-registro">
+            Marcos - D. Admin
+            <div class="chart-container"><canvas id="chart1"></canvas></div>
+        </div>
+        <div class="card-registro">
+            Sandra - Português
+            <div class="chart-container"><canvas id="chart2"></canvas></div>
+        </div>
+        <div class="card-registro">
+            Ana - Informática
+            <div class="chart-container"><canvas id="chart3"></canvas></div>
+        </div>
+        <div class="card-registro">
+            Sheila - Simulado
+            <div class="chart-container"><canvas id="chart4"></canvas></div>
+        </div>
     </div>
 </div>
 
 <script>
-    // Lógica de Bem-Estar
-    function marcarRefeicao(tipo) { alert(tipo + " registrado! Mantenha o foco."); }
-
-    // Lógica de Cronômetro
-    let tempo = 0;
-    function iniciarPomodoro() {
-        setInterval(() => {
-            tempo++;
-            let m = Math.floor(tempo/60).toString().padStart(2, '0');
-            let s = (tempo%60).toString().padStart(2, '0');
-            document.getElementById('displayTempo').innerText = `${m}:${s}`;
-            if(tempo === 1500) alert("⏰ 25 minutos! Hora da pausa de 10 minutos.");
-        }, 1000);
-    }
-
-    // Lógica de PDF (Simples)
-    function processarEdital(input) {
-        alert("Processando edital: " + input.files[0].name + "...");
-    }
+    // Configuração dos gráficos
+    const configs = [chart1, chart2, chart3, chart4];
+    configs.forEach((id, index) => {
+        new Chart(id, {
+            type: 'line',
+            data: { labels: [1,2,3,4], datasets: [{ data: [10, 20, 15, 30], borderColor: '#3498db', fill: false }] },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+        });
+    });
 </script>
-
 </body>
 </html>
